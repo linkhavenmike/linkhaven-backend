@@ -3,7 +3,11 @@ const LINKS_FILE = './links.json';
 const express = require('express');
 const app = express();
 const cors = require('cors');
-app.use(cors());
+const allowedOrigins = ['https://linkhaven.io', 'https://linkhaven-frontend.vercel.app'];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
