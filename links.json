@@ -1,0 +1,16 @@
+[
+  {
+    "email": "demo@example.com",
+    "url": "https://example.com",
+    "source": "web",
+    "category": "ai",
+    "createdAt": "2025-04-30T18:00:00Z"
+  },
+  {
+    "email": "test@example.com",
+    "url": "https://example.com",
+    "source": "web",
+    "category": "ai",
+    "createdAt": "2025-04-30T23:27:42.073Z"
+  }
+]
