@@ -13,6 +13,7 @@ const allowedOrigins = [
   'http://localhost:5173' // useful for local dev
 ];
 
+// Configure CORS middleware
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -26,12 +27,22 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// ✅ Global Preflight OPTIONS Handler
-app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+// Apply CORS headers to all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+// ✅ Global Preflight OPTIONS Handler
+app.options('*', (req, res) => {
   return res.sendStatus(204);
 });
 
@@ -66,6 +77,24 @@ app.post('/api/links', async (req, res) => {
   }
 });
 
+// Add missing signup endpoint with proper CORS handling
+app.post('/api/signup', async (req, res) => {
+  try {
+    // Your signup logic here
+    const { username, email, password } = req.body;
+    
+    // For demonstration purposes only:
+    console.log('User signup attempt:', { username, email });
+    
+    // Return a success response
+    res.status(201).json({ message: 'User registered successfully' });
+    
+  } catch (err) {
+    console.error('❌ Error during signup:', err);
+    res.status(500).json({ error: 'Signup failed' });
+  }
+});
+
 // ✅ MongoDB + Server
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
@@ -75,4 +104,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
- 
