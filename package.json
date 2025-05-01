@@ -1,7 +1,7 @@
 {
   "name": "link-haven",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000L\u0000i\u0000n\u0000k\u0000 \u0000H\u0000a\u0000v\u0000e\u0000n\u0000\r\u0000 \u0000",
+  "description": "Link Haven - A platform to store and organize links",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
@@ -11,22 +11,29 @@
     "type": "git",
     "url": "git+https://github.com/linkhavenmike/link-haven.git"
   },
-  "keywords": [],
+  "keywords": [
+    "links",
+    "bookmarks",
+    "organization"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/linkhavenmike/link-haven/issues"
   },
   "homepage": "https://github.com/linkhavenmike/link-haven#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.18.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.1"
+    "mongoose": "^8.1.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.0.3"
   }
 }
