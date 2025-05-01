@@ -6,18 +6,24 @@ const Link = require('./models/Link');
 
 const app = express();
 
-// ✅ CORS Configuration
-const allowedOrigins = ['https://linkhaven.io', 'https://linkhaven-frontend.vercel.app'];
+// ✅ Robust CORS Configuration
+const allowedOrigins = [
+  'https://linkhaven.io',
+  'https://linkhaven-frontend.vercel.app',
+  'http://localhost:5173' // useful for local dev
+];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`Blocked by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 // ✅ Middleware
@@ -27,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 // ✅ Routes
 app.get('/api/links', async (req, res) => {
   try {
-    const links = await Link.find().sort({ createdAt: -1 }).limit(20); // latest 20
+    const links = await Link.find().sort({ createdAt: -1 }).limit(20);
     res.json(links);
   } catch (err) {
     console.error('❌ Error fetching links:', err);
@@ -51,7 +57,7 @@ app.post('/api/links', async (req, res) => {
   }
 });
 
-// ✅ DB Connection + Server Start
+// ✅ MongoDB + Server
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
