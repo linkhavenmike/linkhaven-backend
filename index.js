@@ -96,8 +96,10 @@ app.get('/api/links', authMiddleware(SECRET), (req, res) => {
     res.status(201).json({ message: 'Link saved', link: newLink });
   });  
 
+  
   // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server listening on port ${PORT}`);
 });
+
