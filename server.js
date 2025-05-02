@@ -2,8 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
-const linkRoutes = require('./routes/links');
+const fs = require('fs');
+
+console.log('Starting server.js');
 
 dotenv.config();
 
@@ -28,12 +29,27 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(express.json());
 
+// Debug routes directory
+console.log('Routes directory contents:', fs.readdirSync('./routes'));
+
+// Load routes
+console.log('Attempting to load routes');
+const authRoutes = require('./routes/auth');
+const linkRoutes = require('./routes/links');
+console.log('authRoutes loaded:', authRoutes);
+console.log('linkRoutes loaded:', linkRoutes);
+
 // Routes
 app.use('/api', authRoutes);
+console.log('Mounted /api routes');
 app.use('/api/links', linkRoutes);
+console.log('Mounted /api/links routes');
 
 // Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// Root endpoint
+app.get('/', (req, res) => res.json({ message: 'Server is running' }));
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -41,8 +57,6 @@ app.use((err, req, res, next) => {
   logger.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
-
-app.get('/', (req, res) => res.json({ message: 'Server is running' }));
 
 // MongoDB connection
 mongoose
