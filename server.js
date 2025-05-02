@@ -42,6 +42,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+app.get('/', (req, res) => res.json({ message: 'Server is running' }));
+
 // MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI, {
