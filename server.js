@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const path = require('path');
 
 console.log('Starting server.js');
 
@@ -34,8 +35,8 @@ console.log('Routes directory contents:', fs.readdirSync('./routes'));
 
 // Load routes
 console.log('Attempting to load routes');
-const authRoutes = require('./routes/auth');
-const linkRoutes = require('./routes/links');
+const authRoutes = require(path.join(__dirname, 'routes', 'auth'));
+const linkRoutes = require(path.join(__dirname, 'routes', 'links'));
 console.log('authRoutes loaded:', authRoutes);
 console.log('linkRoutes loaded:', linkRoutes);
 
