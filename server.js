@@ -20,10 +20,19 @@ const logger = winston.createLogger({
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://linkhaven.io', 'http://localhost:5173'],
+  origin: (origin, callback) => {
+    const allowedOrigins = ['https://linkhaven.io', 'https://www.linkhaven.io', 'http://localhost:5173'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
 
@@ -61,10 +70,7 @@ app.use((err, req, res, next) => {
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
