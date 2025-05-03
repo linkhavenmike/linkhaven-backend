@@ -24,7 +24,7 @@ const corsOptions = {
     console.log('Incoming origin:', origin);
     const allowedOrigins = ['https://linkhaven.io', 'https://www.linkhaven.io', 'http://localhost:5173'];
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, origin || '*');
+      callback(null, true);
     } else {
       console.log('Origin not allowed:', origin);
       callback(new Error('Not allowed by CORS'));
@@ -40,9 +40,12 @@ const corsOptions = {
 // Explicitly set CORS headers for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  console.log('Processing origin:', origin);
   const allowedOrigins = ['https://linkhaven.io', 'https://www.linkhaven.io', 'http://localhost:5173'];
   if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Origin', origin || 'https://linkhaven.io'); // Default to a known origin if undefined
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Fallback for debugging
   }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
