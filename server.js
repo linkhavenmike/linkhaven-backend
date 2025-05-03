@@ -18,7 +18,7 @@ const allowedOrigins = [
   'http://localhost:3000' // For local development
 ];
 
-// ✅ FIRST: Force CORS headers manually for all responses
+// Force CORS headers manually for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -28,9 +28,9 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Handle preflight
+  // Fix: send dummy body instead of using .sendStatus(204)
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
+    return res.status(204).send('ok');
   }
 
   next();
