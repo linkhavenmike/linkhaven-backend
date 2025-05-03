@@ -21,10 +21,12 @@ const logger = winston.createLogger({
 // CORS configuration
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log('Incoming origin:', origin); // Debug log
     const allowedOrigins = ['https://linkhaven.io', 'https://www.linkhaven.io', 'http://localhost:5173'];
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+      callback(null, origin || '*'); // Return the origin or '*' if no origin
     } else {
+      console.log('Origin not allowed:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
