@@ -18,11 +18,26 @@ const allowedOrigins = [
   'http://localhost:3000' // For local development
 ];
 
-// Configure CORS middleware
-app.use(cors({ origin: allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
+// Define CORS options with dynamic origin function
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like curl, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-// Middleware
-app.use(express.json());
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Load routes
 console.log('Attempting to load routes');
