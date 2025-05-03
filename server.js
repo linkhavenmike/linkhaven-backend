@@ -18,10 +18,27 @@ const allowedOrigins = [
   'http://localhost:3000' // For local development
 ];
 
-// Define CORS options with dynamic origin function
+// ✅ FIRST: Force CORS headers manually for all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+// THEN: Use cors middleware for other requests
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like curl, mobile apps)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -32,27 +49,7 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-
-// Apply CORS middleware
 app.use(cors(corsOptions));
-
-// ✅ Manually add CORS headers to all responses
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  // If preflight request, end it here
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
 
 // Middleware
 app.use(express.json());
