@@ -8,22 +8,27 @@ const User = require('../models/User');
 router.post('/signup', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Signup request received:', { email });
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('Email already in use:', email);
       return res.status(400).json({ message: 'Email already in use' });
     }
 
     const user = new User({ email, password });
     await user.save();
+    console.log('User saved to DB:', user._id);
 
-    // Create token
+    // Create JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('JWT created for user:', user._id);
 
     res.status(201).json({ token });
   } catch (error) {
-    console.error('Signup failed:', error);
+    console.error('Signup failed:', error.message);
+    console.error(error.stack);
     res.status(500).json({ error: 'Signup failed' });
   }
 });
@@ -32,21 +37,30 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', email);
 
     // Find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) {
+      console.log('User not found for email:', email);
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     // Check password
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch) {
+      console.log('Password mismatch for user:', email);
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
-    // Create token
+    // Create JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('JWT created for login:', user._id);
 
     res.json({ token });
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error('Login failed:', error.message);
+    console.error(error.stack);
     res.status(500).json({ error: 'Login failed' });
   }
 });
