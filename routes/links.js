@@ -15,14 +15,18 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-
 // POST /api/links — create a new link
 router.post('/', auth, async (req, res) => {
   try {
-    const { url, source, category } = req.body;
+    let { url, source, category } = req.body;
 
     if (!url || !source) {
       return res.status(400).json({ message: 'URL and source are required' });
+    }
+
+    // Normalize URL to use https if no scheme provided
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
     }
 
     const newLink = new Link({
