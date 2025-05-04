@@ -13,6 +13,11 @@ const LinkSchema = new mongoose.Schema({
   category: {
     type: String,
     default: '',
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 }, { timestamps: true }); // ✅ this enables createdAt + updatedAt
 
