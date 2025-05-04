@@ -35,8 +35,8 @@ router.post('/', auth, async (req, res) => {
     await newLink.save();
     res.status(201).json(newLink);
   } catch (err) {
-    console.error('Error saving link:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error saving link:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
