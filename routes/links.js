@@ -7,7 +7,7 @@ const auth = require('../middleware/auth');
 // GET /api/links — fetch links for the logged-in user
 router.get('/', auth, async (req, res) => {
   try {
-    const links = await Link.find({ userId: req.user.id }).sort({ createdAt: -1 });
+    const links = await Link.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.json(links);
   } catch (err) {
     console.error('Error fetching links:', err);
@@ -29,7 +29,7 @@ router.post('/', auth, async (req, res) => {
       url,
       source,
       category,
-      userId: req.user.id
+      user: req.user.id
     });
 
     await newLink.save();
