@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/linkhavenmike/link-haven#readme",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18 <21"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
