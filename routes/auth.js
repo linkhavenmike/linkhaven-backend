@@ -25,7 +25,14 @@ router.post('/signup', async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     console.log('JWT created for user:', user._id);
 
-    res.status(201).json({ token });
+    // Send token and user info in response
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error('Signup failed:', error.message);
     console.error(error.stack);
@@ -57,7 +64,13 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     console.log('JWT created for login:', user._id);
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error('Login failed:', error.message);
     console.error(error.stack);

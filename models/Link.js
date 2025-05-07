@@ -17,9 +17,9 @@ const LinkSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   }
-}, { timestamps: true }); // ✅ this enables createdAt + updatedAt
+}, { timestamps: true }); // createdAt + updatedAt
 
 const Link = mongoose.model('Link', LinkSchema);
 module.exports = Link;

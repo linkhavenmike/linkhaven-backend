@@ -2,23 +2,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const fs = require('fs');
 const path = require('path');
 
+dotenv.config();
+const app = express();
 console.log('Starting server.js');
 
-dotenv.config();
-
-const app = express();
-
-// Define allowed origins
+// ----- CORS -----
 const allowedOrigins = [
   'https://www.linkhaven.io',
   'https://linkhaven.io',
-  'http://localhost:3000' // For local development
+  'http://localhost:3000'
 ];
 
-// Force CORS headers manually for all responses
+// Handle preflight and custom CORS headers manually
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -28,7 +25,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Fix: send dummy body instead of using .sendStatus(204)
   if (req.method === 'OPTIONS') {
     return res.status(204).send('ok');
   }
@@ -36,9 +32,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// THEN: Use cors middleware for other requests
-const corsOptions = {
-  origin: function (origin, callback) {
+// Also use cors middleware for any future dynamic handling
+app.use(cors({
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -46,41 +42,35 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
+}));
 
-// Middleware
-app.use(express.json());
+// ----- Body Parsers -----
+app.use(express.json()); // For JSON APIs
+app.use(express.urlencoded({ extended: false })); // For form-encoded (e.g. Twilio SMS)
 
-// Load routes
-console.log('Attempting to load routes');
-const authRoutes = require(path.join(__dirname, 'routes', 'auth'));
-const linkRoutes = require(path.join(__dirname, 'routes', 'links'));
-console.log('authRoutes loaded:', authRoutes);
-console.log('linkRoutes loaded:', linkRoutes);
+// ----- Route Imports -----
+console.log('Loading routes...');
+const authRoutes = require('./routes/auth');
+const linkRoutes = require('./routes/links');
+const twilioRoutes = require('./routes/twilio');
 
-// Routes
+// ----- Mount Routes -----
 app.use('/api', authRoutes);
-console.log('Mounted /api routes');
 app.use('/api/links', linkRoutes);
-console.log('Mounted /api/links routes');
+app.use('/twilio', twilioRoutes);
+console.log('Routes mounted');
 
-// Health check endpoint
+// ----- Health Checks -----
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
-
-// Root endpoint
 app.get('/', (req, res) => res.json({ message: 'Server is running' }));
 
-// MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// ----- MongoDB Connection -----
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// Start server
+// ----- Start Server -----
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
