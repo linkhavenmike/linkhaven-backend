@@ -1,51 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { parsePhoneNumber } = require('libphonenumber-js');
 const User = require('../models/User');
-const Link = require('../models/Link');
 
-// POST /twilio/sms-inbound
-router.post('/sms-inbound', async (req, res) => {
-  const { From, Body } = req.body;
+// POST /api/twilio/opt-in
+router.post('/opt-in', async (req, res) => {
+  const { phone } = req.body;
+
+  if (!phone) {
+    return res.status(400).json({ message: 'Phone number is required' });
+  }
 
   try {
-    if (!From || !Body) {
-      return res
-        .status(400)
-        .type('text/xml')
-        .send(`<Response><Message>Missing phone or message body.</Message></Response>`);
+    // Optional: Add phone number normalization/validation here
+    const existingUser = await User.findOne({ phone });
+
+    if (existingUser && existingUser.smsOptedIn) {
+      return res.status(200).json({ message: 'Already opted in' });
     }
 
-    const phone = parsePhoneNumber(From)?.format('E.164') || From;
-    const url = Body.trim();
+    // Either update existing user or create a new one
+    const user = await User.findOneAndUpdate(
+      { phone },
+      { phone, smsOptedIn: true },
+      { upsert: true, new: true }
+    );
 
-    let user = await User.findOne({ phone });
-
-    if (!user) {
-      user = await User.create({
-        phone,
-        provisional: true,
-        createdAt: new Date(),
-      });
-    }
-
-    await Link.create({
-      userId: user._id,
-      url,
-      source: 'sms',
-      createdAt: new Date(),
-    });
-
-    return res
-      .status(200)
-      .type('text/xml')
-      .send(`<Response><Message>✅ Link saved! Visit linkhaven.io/dashboard</Message></Response>`);
+    res.status(200).json({ message: 'Successfully opted in for SMS', user });
   } catch (err) {
-    console.error('Error handling SMS:', err);
-    return res
-      .status(500)
-      .type('text/xml')
-      .send(`<Response><Message>⚠️ Error saving your link. Try again later.</Message></Response>`);
+    console.error('SMS opt-in failed:', err);
+    res.status(500).json({ message: 'Failed to opt in for SMS' });
   }
 });
 

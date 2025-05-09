@@ -57,7 +57,7 @@ const twilioRoutes = require('./routes/twilio');
 // ----- Mount Routes -----
 app.use('/api', authRoutes);
 app.use('/api/links', linkRoutes);
-app.use('/twilio', twilioRoutes);
+app.use('/api/twilio', twilioRoutes); // ✅ Prefix with /api for consistency
 console.log('Routes mounted');
 
 // ----- Health Checks -----
